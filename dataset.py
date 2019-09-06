@@ -27,11 +27,26 @@ mpl.__version__
 style.use('ggplot')
 
 #this is our dataframe series we pulled in from the datareader, could also be from a csv, give it a label
-close_px.plot(label='AAPL')
+#can only show one plt at a time
+#close_px.plot(label='AAPL')
+
 #this was the dataframe manipulation
-mavg.plot(label='mavg')
-plt.legend()
+#mavg.plot(label='mavg')
 
+#plt.legend()
 
-plt.show()
+rets = close_px / close_px.shift(1) - 1
+
+rets.plot(label='return')
+
+#pull more data into a new dataframe for correlation matrices
+dfcomp = web.DataReader(['AAPL', 'GE', 'GOOG', 'IBM', 'MSFT'],'yahoo',start=start,end=end)['Adj Close']
+
+#pandas functions here
+retscomp = dfcomp.pct_change()
+#need to print corr if we want to visualize in commandline
+corr = retscomp.corr()
+
+print (corr)
+
 
