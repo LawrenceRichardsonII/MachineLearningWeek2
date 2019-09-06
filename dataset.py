@@ -23,19 +23,19 @@ from sklearn.preprocessing import StandardScaler
 from sklearn import preprocessing
 from sklearn.pipeline import make_pipeline
 
-start = datetime.datetime(2010, 1, 1)
+start = datetime.datetime(2015, 1, 1)
 end = datetime.datetime(2017, 1, 11)
 
-df = web.DataReader("AAPL", 'yahoo', start, end)
+df = web.DataReader("TSLA", 'yahoo', start, end)
 #.tail shows only the end, we actually need to do a .print if we want to see in line on cmder
-df.tail()
+#df.tail()
 
 #construct our moving averages
 close_px = df['Adj Close']
 mavg = close_px.rolling(window=100).mean()
 
 #format for matlabplot (to print and visulaize)
-mpl.rc('figure', figsize=(8, 7))
+mpl.rc('figure', figsize=(10, 10))
 mpl.__version__
 
 # Adjusting the style of matplotlib
@@ -50,17 +50,17 @@ style.use('ggplot')
 
 
 
-rets = close_px / close_px.shift(1) - 1
+#rets = close_px / close_px.shift(1) - 1
 
 #rets.plot(label='return')
 
 #pull more data into a new dataframe for correlation matrices
-dfcomp = web.DataReader(['AAPL', 'GE', 'GOOG', 'IBM', 'MSFT'],'yahoo',start=start,end=end)['Adj Close']
+#dfcomp = web.DataReader(['AAPL', 'GE', 'GOOG', 'IBM', 'MSFT'],'yahoo',start=start,end=end)['Adj Close']
 
 #pandas functions here
-retscomp = dfcomp.pct_change()
+#retscomp = dfcomp.pct_change()
 #need to print corr if we want to visualize in commandline
-corr = retscomp.corr()
+#corr = retscomp.corr()
 
 #scatterplot time
 
@@ -143,8 +143,12 @@ print('The quadratic regression 2 confidence is ', confidencepoly2)
 print('The quadratic regression 3 confidence is ', confidencepoly3)
 print('The knn regression confidence is ', confidenceknn)
 
+options = [confidencereg, confidencepoly2, confidencepoly3, confidenceknn]
+
+print ('Using: ', max(options))
+
 #using clfknn here could be clfpoly etc
-forecast_set = clfreg.predict(X_lately)
+forecast_set = clfknn.predict(X_lately)
 dfreg['Forecast'] = np.nan
 
 
@@ -156,11 +160,11 @@ next_unix = last_unix + datetime.timedelta(days=1)
 
 for i in forecast_set:
     next_date = next_unix
-    next_unix += datetime.timedelta(days=1)
+    next_unix += datetime.timedelta(days=5)
     dfreg.loc[next_date] = [np.nan for _ in range(len(dfreg.columns)-1)]+[i]
 dfreg['Adj Close'].tail(500).plot()
 dfreg['Forecast'].tail(500).plot()
 plt.legend(loc=4)
 plt.xlabel('Date')
-plt.ylabel('Price')
+plt.ylabel('TESLA Price')
 plt.show()
