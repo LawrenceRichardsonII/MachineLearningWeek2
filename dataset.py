@@ -2,6 +2,8 @@ import pandas as pd
 import datetime
 import pandas_datareader.data as web
 from pandas import Series, DataFrame
+from pandas.plotting import scatter_matrix
+
 
 
 import matplotlib.pyplot as plt
@@ -33,11 +35,11 @@ style.use('ggplot')
 #this was the dataframe manipulation
 #mavg.plot(label='mavg')
 
-#plt.legend()
+
 
 rets = close_px / close_px.shift(1) - 1
 
-rets.plot(label='return')
+#rets.plot(label='return')
 
 #pull more data into a new dataframe for correlation matrices
 dfcomp = web.DataReader(['AAPL', 'GE', 'GOOG', 'IBM', 'MSFT'],'yahoo',start=start,end=end)['Adj Close']
@@ -47,6 +49,36 @@ retscomp = dfcomp.pct_change()
 #need to print corr if we want to visualize in commandline
 corr = retscomp.corr()
 
-print (corr)
+#scatterplot time
+
+#plt.scatter(retscomp.AAPL, retscomp.GE)
+#plt.xlabel('Returns AAPL')
+#plt.ylabel('Returns GE')
 
 
+#pd.plotting.scatter_matrix(retscomp, diagonal='kde', figsize=(10, 10));
+
+
+#heatmap
+#plt.imshow(corr, cmap='hot', interpolation='none')
+#plt.colorbar()
+#plt.xticks(range(len(corr)), corr.columns)
+#plt.yticks(range(len(corr)), corr.columns);
+
+#return rate and risk
+plt.scatter(retscomp.mean(), retscomp.std())
+plt.xlabel('Expected returns')
+plt.ylabel('Risk')
+for label, x, y in zip(retscomp.columns, retscomp.mean(), retscomp.std()):
+    plt.annotate(
+        label, 
+        xy = (x, y), xytext = (20, -20),
+        textcoords = 'offset points', ha = 'right', va = 'bottom',
+        bbox = dict(boxstyle = 'round,pad=0.5', fc = 'yellow', alpha = 0.5),
+        arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3,rad=0'))
+
+
+
+plt.legend()
+
+plt.show()
